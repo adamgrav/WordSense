@@ -14,6 +14,9 @@
 		8C86E0761D8324F5009C9A02 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8C86E0741D8324F5009C9A02 /* LaunchScreen.storyboard */; };
 		8C86E0811D8324F5009C9A02 /* Word_SenseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C86E0801D8324F5009C9A02 /* Word_SenseTests.swift */; };
 		8C86E08C1D8324F5009C9A02 /* Word_SenseUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C86E08B1D8324F5009C9A02 /* Word_SenseUITests.swift */; };
+		8C86E09A1D832562009C9A02 /* SwiftyJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C86E0991D832562009C9A02 /* SwiftyJSON.swift */; };
+		8C86E09C1D832598009C9A02 /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C86E09B1D832598009C9A02 /* Reachability.swift */; };
+		8CC418101D86455000A6EB27 /* NVActivityIndicatorView in Resources */ = {isa = PBXBuildFile; fileRef = 8CC4180F1D86455000A6EB27 /* NVActivityIndicatorView */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +50,9 @@
 		8C86E0871D8324F5009C9A02 /* Word SenseUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Word SenseUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8C86E08B1D8324F5009C9A02 /* Word_SenseUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Word_SenseUITests.swift; sourceTree = "<group>"; };
 		8C86E08D1D8324F5009C9A02 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8C86E0991D832562009C9A02 /* SwiftyJSON.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftyJSON.swift; sourceTree = "<group>"; };
+		8C86E09B1D832598009C9A02 /* Reachability.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
+		8CC4180F1D86455000A6EB27 /* NVActivityIndicatorView */ = {isa = PBXFileReference; lastKnownFileType = folder; path = NVActivityIndicatorView; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,6 +87,7 @@
 				8C86E07F1D8324F5009C9A02 /* Word SenseTests */,
 				8C86E08A1D8324F5009C9A02 /* Word SenseUITests */,
 				8C86E0691D8324F5009C9A02 /* Products */,
+				8CC4180F1D86455000A6EB27 /* NVActivityIndicatorView */,
 			);
 			sourceTree = "<group>";
 		};
@@ -103,6 +110,8 @@
 				8C86E0721D8324F5009C9A02 /* Assets.xcassets */,
 				8C86E0741D8324F5009C9A02 /* LaunchScreen.storyboard */,
 				8C86E0771D8324F5009C9A02 /* Info.plist */,
+				8C86E0991D832562009C9A02 /* SwiftyJSON.swift */,
+				8C86E09B1D832598009C9A02 /* Reachability.swift */,
 			);
 			path = "Word Sense";
 			sourceTree = "<group>";
@@ -235,6 +244,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8CC418101D86455000A6EB27 /* NVActivityIndicatorView in Resources */,
 				8C86E0761D8324F5009C9A02 /* LaunchScreen.storyboard in Resources */,
 				8C86E0731D8324F5009C9A02 /* Assets.xcassets in Resources */,
 				8C86E0711D8324F5009C9A02 /* Main.storyboard in Resources */,
@@ -262,7 +272,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8C86E09A1D832562009C9A02 /* SwiftyJSON.swift in Sources */,
 				8C86E06E1D8324F5009C9A02 /* ViewController.swift in Sources */,
+				8C86E09C1D832598009C9A02 /* Reachability.swift in Sources */,
 				8C86E06C1D8324F5009C9A02 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -512,6 +524,7 @@
 				8C86E0921D8324F5009C9A02 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		8C86E0931D8324F5009C9A02 /* Build configuration list for PBXNativeTarget "Word SenseTests" */ = {
 			isa = XCConfigurationList;
@@ -520,6 +533,7 @@
 				8C86E0951D8324F5009C9A02 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		8C86E0961D8324F5009C9A02 /* Build configuration list for PBXNativeTarget "Word SenseUITests" */ = {
 			isa = XCConfigurationList;
@@ -528,6 +542,7 @@
 				8C86E0981D8324F5009C9A02 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
