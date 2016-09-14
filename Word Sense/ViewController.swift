@@ -28,7 +28,7 @@ fileprivate func > <T : Comparable>(lhs: T?, rhs: T?) -> Bool {
     }
 }
 
-class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate, NVActivityIndicatorViewable {
     
     @IBOutlet weak var imageView: UIImageView!
     let imagePicker = UIImagePickerController()
@@ -37,9 +37,8 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     @IBOutlet weak var wordCount: UILabel!
     @IBOutlet weak var textFoundLabel: UILabel!
     
-    
-    
     var API_KEY = "AIzaSyBo42-xNuufRV_6D39SjL1kTDaJokn2Znk"
+    var liveCount: Int = 0
     
     @IBAction func loadImageButtonTapped(_ sender: UIButton) {
         imagePicker.allowsEditing = false
@@ -62,17 +61,16 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         if let pickedImage = info[UIImagePickerControllerOriginalImage] as? UIImage {
             imageView.contentMode = .scaleAspectFit
-            imageView.image = pickedImage // You could optionally display the image here by setting imageView.image = pickedImage
+            imageView.isHidden = true // You could optionally display the image here by setting imageView.image = pickedImage
             spinner.startAnimating()
+            startActivityAnimating(CGSize(width: 100, height: 100), message: "Analyzing...", type: NVActivityIndicatorType(rawValue: 16))
             textResults.isHidden = true
             wordCount.isHidden = true
             textFoundLabel.isHidden = true
             
             if(!Reachability.isConnectedToNetwork()) {
                 spinner.stopAnimating()
-                //let alertController = UIAlertController(title: "No internet connection", message: "Requires internet connection to analyze image", preferredStyle: UIAlertControllerStyle.alert)
-                //alertController.addAction(UIAlertAction(title: "Dismiss", style: UIAlertActionStyle.default, handler: nil))
-                //self.present(alertController, animated: true, completion: nil)
+                stopActivityAnimating()
                 self.textResults.isHidden = false
                 self.wordCount.isHidden = false
                 self.textFoundLabel.isHidden = false
@@ -171,6 +169,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             let errorObj: JSON = json["error"]
             
             self.spinner.stopAnimating()
+            self.stopActivityAnimating()
             self.imageView.isHidden = true
             //
             self.textResults.isHidden = false
@@ -191,6 +190,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
                 //Get text annotations
                 let textAnnotations: JSON = responses["textAnnotations"]
                 let numWords: Int = textAnnotations.count
+                self.liveCount = (numWords - 1)
                 var words: Array<String> = []
                 
                 if numWords > 0 {
@@ -208,7 +208,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
                         }
                     }
                     self.textResults.text = textResultsText
-                    self.wordCount.text = "\(numWords-1) Words"
+                    self.wordCount.text = "\(self.liveCount) Words"
                 } else {
                     self.textResults.text = "No text found"
                     self.wordCount.text = "x  -  x"
@@ -216,9 +216,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
                 }
             }
         })
-        
     }
-    
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         dismiss(animated: true, completion: nil)
@@ -232,16 +230,12 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         wordCount.isHidden = true
         textFoundLabel.isHidden = true
         spinner.hidesWhenStopped = true
-        
-        
     }
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-    
-    
 }
 
 
