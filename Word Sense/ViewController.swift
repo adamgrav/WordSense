@@ -32,13 +32,16 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     @IBOutlet weak var imageView: UIImageView!
     let imagePicker = UIImagePickerController()
-    @IBOutlet var spinner: UIActivityIndicatorView!
+    weak var cameraViewController: CameraViewController!
     @IBOutlet weak var textResults: UITextView!
     @IBOutlet weak var wordCount: UILabel!
     @IBOutlet weak var textFoundLabel: UILabel!
+    @IBOutlet weak var shareButton: UIBarButtonItem!
     
     var API_KEY = "AIzaSyBo42-xNuufRV_6D39SjL1kTDaJokn2Znk"
     var liveCount: Int = 0
+    var croppingEnabled: Bool = true
+    var libraryEnabled: Bool = true
     
     @IBAction func loadImageButtonTapped(_ sender: UIButton) {
         imagePicker.allowsEditing = false
@@ -48,28 +51,51 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     }
     
     @IBAction func openCamera(_ sender: AnyObject) {
-        imageView.isHidden = false
-        if UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.camera) {
-            let imagePicker = UIImagePickerController()
-            imagePicker.delegate = self
-            imagePicker.sourceType = .camera
-            imagePicker.allowsEditing = false
-            self.present(imagePicker, animated: true, completion: nil)
+        imageView.isHidden = true
+
+        let cameraViewController = CameraViewController(croppingEnabled: croppingEnabled, allowsLibraryAccess: libraryEnabled) { [weak self] image, asset in
+            
+            if(!Reachability.isConnectedToNetwork()) {
+                self?.dismiss(animated: true, completion: nil)
+                self?.stopActivityAnimating()
+                self?.textResults.isHidden = false
+                self?.wordCount.isHidden = false
+                self?.textFoundLabel.isHidden = false
+                self?.wordCount.text = "No Connection"
+                self?.textFoundLabel.text = "..."
+                self?.textResults.text = "Image Sensing Requires Internet Connection...\n\nTry connecting to a WiFi signal"
+            }
+            else if((image) != nil) {
+                self?.dismiss(animated: true, completion: nil)
+                self?.imageView.image = image
+                self?.startActivityAnimating(CGSize(width: 100, height: 100), message: "Analyzing...", type: NVActivityIndicatorType(rawValue: 16))
+                self?.textResults.isHidden = true
+                self?.wordCount.isHidden = true
+                self?.textFoundLabel.isHidden = true
+                
+                // Base64 encode the image and create the request
+                let binaryImageData = self?.base64EncodeImage(image!)
+                self?.createRequest(binaryImageData!)
+            }
+            else {
+                self?.dismiss(animated: true, completion: nil)
+            }
+            
         }
+        present(cameraViewController, animated: true, completion: nil)
     }
     
+    //Library Picker
     func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [String : Any]) {
         if let pickedImage = info[UIImagePickerControllerOriginalImage] as? UIImage {
             imageView.contentMode = .scaleAspectFit
             imageView.isHidden = true // You could optionally display the image here by setting imageView.image = pickedImage
-            spinner.startAnimating()
             startActivityAnimating(CGSize(width: 100, height: 100), message: "Analyzing...", type: NVActivityIndicatorType(rawValue: 16))
             textResults.isHidden = true
             wordCount.isHidden = true
             textFoundLabel.isHidden = true
             
             if(!Reachability.isConnectedToNetwork()) {
-                spinner.stopAnimating()
                 stopActivityAnimating()
                 self.textResults.isHidden = false
                 self.wordCount.isHidden = false
@@ -88,6 +114,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         dismiss(animated: true, completion: nil)
         imageView.isHidden = true
     }
+
     
     func resizeImage(_ imageSize: CGSize, image: UIImage) -> Data {
         UIGraphicsBeginImageContext(imageSize)
@@ -140,10 +167,9 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         request.httpBody = try! JSONSerialization.data(withJSONObject: jsonRequest, options: [])
         
         // Run the request on a background thread
-        DispatchQueue.global(priority: DispatchQueue.GlobalQueuePriority.default).async(execute: {
+        DispatchQueue.global(qos: DispatchQoS.QoSClass.default).async {
             self.runRequestOnBackgroundThread(request as URLRequest)
-        });
-        
+        }
     }
     
     func runRequestOnBackgroundThread(_ request: URLRequest) {
@@ -163,18 +189,17 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         // Update UI on the main thread
         DispatchQueue.main.async(execute: {
             
-            
             // Use SwiftyJSON to parse results
             let json = JSON(data: dataToParse)
             let errorObj: JSON = json["error"]
             
-            self.spinner.stopAnimating()
+            //
             self.stopActivityAnimating()
             self.imageView.isHidden = true
-            //
             self.textResults.isHidden = false
             self.wordCount.isHidden = false
             self.textFoundLabel.isHidden = false
+            self.shareButton.isEnabled = true
             //
             
             // Check for errors
@@ -212,7 +237,6 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
                 } else {
                     self.textResults.text = "No text found"
                     self.wordCount.text = "x  -  x"
-                    
                 }
             }
         })
@@ -220,6 +244,35 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         dismiss(animated: true, completion: nil)
+    }
+
+    @IBAction func shareButtonAction(_ sender: UIBarButtonItem) {
+        let firstActivityItem = "" + textResults.text
+        let secondActivityItem : NSURL = NSURL(string: "http//:urlyouwant")!
+        
+        let activityViewController : UIActivityViewController = UIActivityViewController(
+            activityItems: [firstActivityItem, secondActivityItem], applicationActivities: nil)
+        
+        // This lines is for the popover you need to show in iPad
+        activityViewController.popoverPresentationController?.barButtonItem = (sender)
+        
+        // This line remove the arrow of the popover to show in iPad
+        activityViewController.popoverPresentationController?.permittedArrowDirections = UIPopoverArrowDirection.any
+        activityViewController.popoverPresentationController?.sourceRect = CGRect(x: 150, y: 150, width: 0, height: 0)
+        
+        // Anything you want to exclude
+        activityViewController.excludedActivityTypes = [
+            UIActivityType.postToWeibo,
+            UIActivityType.print,
+            UIActivityType.assignToContact,
+            UIActivityType.saveToCameraRoll,
+            UIActivityType.addToReadingList,
+            UIActivityType.postToFlickr,
+            UIActivityType.postToVimeo,
+            UIActivityType.postToTencentWeibo
+        ]
+        
+        self.present(activityViewController, animated: true, completion: nil)
     }
     
     override func viewDidLoad(){
@@ -229,7 +282,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         textResults.isHidden = true
         wordCount.isHidden = true
         textFoundLabel.isHidden = true
-        spinner.hidesWhenStopped = true
+        shareButton.isEnabled = false
     }
     
     override func didReceiveMemoryWarning() {
